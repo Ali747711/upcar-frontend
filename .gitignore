@@ -22,3 +22,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local env
+.env
+.env.local
+
+.agents
+.claude
+CLAUDE.md
+skills-lock.json
+.vercel
+mercedes-benz-eqe-500-2026-05-31 (6).pdf
+vercel.json

@@ -1,6 +1,6 @@
-# React + TypeScript + Vite + shadcn/ui
+# JQ-Auto
 
-This is a template for a new Vite project with React, TypeScript, and shadcn/ui.
+This is a React project built with TypeScript, Vite, and shadcn/ui.
 
 ## Adding components
 

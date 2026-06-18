@@ -1,0 +1,189 @@
+/*
+ * Single source of truth for the generated document layout.
+ *
+ * Self-contained (no Tailwind / theme variables) and print-safe so it can be
+ * shared verbatim with the backend Puppeteer template. The in-app preview and
+ * the final PDF must look identical — do NOT fork this layout.
+ *
+ * Layout: parts are laid out two columns per page (max 8 rows per column),
+ * separated by a vertical divider line, with larger, clearly visible images.
+ */
+
+.doc {
+  --doc-border: #cfcfcf;
+  --doc-ink: #171717;
+  --doc-muted: #525252;
+
+  box-sizing: border-box;
+  width: 210mm; /* A4 width */
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 14mm 12mm;
+  background: #ffffff;
+  color: var(--doc-ink);
+  font-family: "Noto Sans", "Space Grotesk Variable", Arial, sans-serif;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.doc *,
+.doc *::before,
+.doc *::after {
+  box-sizing: border-box;
+}
+
+/* Header */
+.doc__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 2px solid var(--doc-ink);
+}
+
+.doc__title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.doc__subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--doc-muted);
+}
+
+.doc__meta {
+  text-align: right;
+  font-size: 11px;
+  color: var(--doc-muted);
+  white-space: nowrap;
+}
+
+.doc__meta-label {
+  font-weight: 600;
+  color: var(--doc-ink);
+}
+
+/* A page holds up to 16 parts (two columns of 8). Each subsequent page
+   starts on a fresh sheet with breathing room at the top. */
+.doc__page + .doc__page {
+  break-before: page;
+  page-break-before: always;
+  padding-top: 10mm;
+}
+
+/* Two columns split by a 1px divider that stretches the full row height. */
+.doc__columns {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+}
+
+.doc__divider {
+  background: var(--doc-border);
+}
+
+.doc__column {
+  display: flex;
+  flex-direction: column;
+}
+
+/* A single part: checkbox + large image + code / quantity·price·total. */
+.doc__entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.doc__entry-check {
+  flex-shrink: 0;
+  width: 40px;
+  text-align: center;
+  font-size: 28px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.doc__entry-img {
+  flex-shrink: 0;
+  width: 150px;
+  height: 90px;
+  object-fit: cover;
+  border: 1px solid var(--doc-border);
+  border-radius: 4px;
+}
+
+.doc__entry-img--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  border-style: dashed;
+  font-size: 9px;
+  color: var(--doc-muted);
+}
+
+.doc__entry-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.doc__entry-code {
+  font-weight: 700;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  word-break: break-all;
+}
+
+.doc__entry-nums {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--doc-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.doc__entry-total {
+  font-weight: 700;
+  color: var(--doc-ink);
+}
+
+/* Footer / totals */
+.doc__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 2px solid var(--doc-ink);
+}
+
+.doc__summary-item {
+  font-size: 11px;
+  color: var(--doc-muted);
+}
+
+.doc__grand-total {
+  text-align: right;
+}
+
+.doc__grand-total-label {
+  font-size: 11px;
+  color: var(--doc-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.doc__grand-total-value {
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
