@@ -11,8 +11,8 @@ interface PartsDocumentProps {
 }
 
 /** Max parts per column, and per page (two columns side by side). */
-const ROWS_PER_COLUMN = 8
-const ROWS_PER_PAGE = ROWS_PER_COLUMN * 2
+const ROWS_PER_COLUMN = 9
+const ROWS_PER_PAGE = ROWS_PER_COLUMN * 2 // 18
 
 function chunk<T>(items: T[], size: number): T[][] {
   const pages: T[][] = []
@@ -64,7 +64,7 @@ function PartEntry({ part }: { part: Part }) {
  * Renders the exact document that the backend turns into a PDF. This is the
  * shared layout used by the in-app preview; the markup + document.css are the
  * single source of truth (see project CLAUDE.md). Parts flow into two columns
- * of up to 10 rows per page, divided by a vertical line.
+ * of up to 9 rows per page (18 per page), divided by a vertical line.
  */
 export function PartsDocument({ carInfo, parts, date }: PartsDocumentProps) {
   const documentDate = date ?? new Date().toISOString()

@@ -5,8 +5,9 @@
  * shared verbatim with the backend Puppeteer template. The in-app preview and
  * the final PDF must look identical — do NOT fork this layout.
  *
- * Layout: parts are laid out two columns per page (max 8 rows per column),
- * separated by a vertical divider line, with larger, clearly visible images.
+ * Layout: parts are laid out two columns per page (max 9 rows per column,
+ * 18 per page), separated by a vertical divider line, with clearly visible
+ * images.
  */
 
 .doc {
@@ -68,7 +69,7 @@
   color: var(--doc-ink);
 }
 
-/* A page holds up to 16 parts (two columns of 8). Each subsequent page
+/* A page holds up to 18 parts (two columns of 9). Each subsequent page
    starts on a fresh sheet with breathing room at the top. */
 .doc__page + .doc__page {
   break-before: page;
@@ -96,7 +97,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px;
+  padding: 2px 8px;
   break-inside: avoid;
   page-break-inside: avoid;
 }
@@ -114,7 +115,7 @@
 
 .doc__entry-img {
   flex-shrink: 0;
-  width: 150px;
+  width: 146px;
   height: 90px;
   object-fit: cover;
   border: 1px solid var(--doc-border);
