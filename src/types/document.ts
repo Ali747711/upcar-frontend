@@ -5,6 +5,8 @@ export interface SavedDocument {
   id: string
   carName: string
   carNumber: string
+  /** Client-facing price markup in percent (0 = none). Base prices stay untouched. */
+  markupPercent: number
   parts: Part[]
   /** ISO timestamps. */
   createdAt: string
@@ -14,5 +16,5 @@ export interface SavedDocument {
 /** Fields supplied when creating/updating a document (timestamps are managed). */
 export type DocumentDraft = Pick<
   SavedDocument,
-  "carName" | "carNumber" | "parts"
+  "carName" | "carNumber" | "markupPercent" | "parts"
 >

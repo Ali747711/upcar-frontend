@@ -24,6 +24,7 @@ import { PageHeader } from "@/components/layout/PageHeader"
 import { CarInfoForm } from "@/components/parts/CarInfoForm"
 import { PartsTable } from "@/components/parts/PartsTable"
 import { PreviewDialog } from "@/components/PreviewDialog"
+import { MarkupSelect } from "@/components/documents/MarkupSelect"
 import { useParts } from "@/hooks/useParts"
 import { deleteUploadedImage, uploadImage } from "@/lib/api/upload"
 import { generatePdf } from "@/lib/api"
@@ -62,21 +63,29 @@ interface EditorFormProps {
   documentId: string | null
   initialCarInfo: CarInfo
   initialParts: Part[]
+  /** Persisted markup for existing documents; 0 for new ones. */
+  initialMarkupPercent: number
 }
 
-function snapshot(carInfo: CarInfo, parts: Part[]): string {
-  return JSON.stringify({ carInfo, parts })
+function snapshot(
+  carInfo: CarInfo,
+  parts: Part[],
+  markupPercent: number
+): string {
+  return JSON.stringify({ carInfo, parts, markupPercent })
 }
 
 export function EditorForm({
   documentId,
   initialCarInfo,
   initialParts,
+  initialMarkupPercent,
 }: EditorFormProps) {
   const navigate = useNavigate()
   const [carInfo, setCarInfo] = useState<CarInfo>(initialCarInfo)
   const { parts, addPart, addMany, updatePart, removePart } =
     useParts(initialParts)
+  const [markupPercent, setMarkupPercent] = useState(initialMarkupPercent)
 
   const [showErrors, setShowErrors] = useState(false)
   const [previewOpen, setPreviewOpen] = useState(false)
@@ -86,12 +95,12 @@ export function EditorForm({
   const [uploadingIds, setUploadingIds] = useState<Set<string>>(new Set())
   /** Snapshot of the last persisted state, for dirty tracking. */
   const [savedState, setSavedState] = useState(() =>
-    snapshot(initialCarInfo, initialParts)
+    snapshot(initialCarInfo, initialParts, initialMarkupPercent)
   )
 
   const dirty = useMemo(
-    () => snapshot(carInfo, parts) !== savedState,
-    [carInfo, parts, savedState]
+    () => snapshot(carInfo, parts, markupPercent) !== savedState,
+    [carInfo, parts, markupPercent, savedState]
   )
 
   // Warn before leaving with unsaved changes (tab close / reload).
@@ -159,15 +168,16 @@ export function EditorForm({
         try {
           await documentRepository.update(documentId, {
             ...carInfo,
+            markupPercent,
             parts: newParts,
           })
-          setSavedState(snapshot(carInfo, newParts))
+          setSavedState(snapshot(carInfo, newParts, markupPercent))
         } catch {
           // intentionally silent
         }
       }
     },
-    [parts, carInfo, documentId, removePart]
+    [parts, carInfo, markupPercent, documentId, removePart]
   )
 
   const ensureValid = useCallback((): boolean => {
@@ -187,14 +197,14 @@ export function EditorForm({
     }
     setSaving(true)
     try {
-      const draft: DocumentDraft = { ...carInfo, parts }
+      const draft: DocumentDraft = { ...carInfo, markupPercent, parts }
       if (documentId) {
         await documentRepository.update(documentId, draft)
-        setSavedState(snapshot(carInfo, parts))
+        setSavedState(snapshot(carInfo, parts, markupPercent))
         toast.success("Changes saved")
       } else {
         const created = await documentRepository.create(draft)
-        setSavedState(snapshot(carInfo, parts))
+        setSavedState(snapshot(carInfo, parts, markupPercent))
         toast.success("Document saved")
         navigate(`/documents/${created.id}`, { replace: true })
       }
@@ -205,7 +215,7 @@ export function EditorForm({
     } finally {
       setSaving(false)
     }
-  }, [carInfo, parts, documentId, navigate, ensureValid])
+  }, [carInfo, parts, markupPercent, documentId, navigate, ensureValid])
 
   const handlePreview = () => {
     if (ensureValid()) {
@@ -221,7 +231,7 @@ export function EditorForm({
       setGenerating(true)
       try {
         const filteredParts = applyFilter(parts, mode)
-        await generatePdf({ ...carInfo, parts: filteredParts })
+        await generatePdf({ ...carInfo, parts: filteredParts, markupPercent })
         toast.success("PDF generated")
         setPreviewOpen(false)
       } catch (error) {
@@ -232,7 +242,7 @@ export function EditorForm({
         setGenerating(false)
       }
     },
-    [carInfo, parts, ensureValid]
+    [carInfo, parts, markupPercent, ensureValid]
   )
 
   return (
@@ -262,6 +272,7 @@ export function EditorForm({
         }
         actions={
           <>
+            <MarkupSelect value={markupPercent} onChange={setMarkupPercent} />
             <Button variant="ghost" onClick={handlePreview}>
               <FileText data-icon="inline-start" />
               <span className="hidden sm:inline">Preview</span>
@@ -317,6 +328,7 @@ export function EditorForm({
           parts={parts}
           showErrors={showErrors}
           uploadingIds={uploadingIds}
+          markupPercent={markupPercent}
           onAdd={addPart}
           onAddMany={addMany}
           onChange={updatePart}
@@ -331,6 +343,7 @@ export function EditorForm({
         carInfo={carInfo}
         // Preview the exact "All parts" order (checked first) the PDF will use.
         parts={applyFilter(parts, "all")}
+        markupPercent={markupPercent}
         generating={generating}
         onGenerate={handleGenerate}
       />

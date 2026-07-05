@@ -18,6 +18,7 @@ interface PreviewDialogProps {
   onOpenChange: (open: boolean) => void
   carInfo: CarInfo
   parts: Part[]
+  markupPercent?: number
   generating: boolean
   onGenerate: () => void
 }
@@ -27,6 +28,7 @@ export function PreviewDialog({
   onOpenChange,
   carInfo,
   parts,
+  markupPercent = 0,
   generating,
   onGenerate,
 }: PreviewDialogProps) {
@@ -42,7 +44,11 @@ export function PreviewDialog({
 
         <div className="flex-1 overflow-auto bg-muted p-6">
           <div className="mx-auto w-fit bg-white shadow-sm">
-            <PartsDocument carInfo={carInfo} parts={parts} />
+            <PartsDocument
+              carInfo={carInfo}
+              parts={parts}
+              markupPercent={markupPercent}
+            />
           </div>
         </div>
 

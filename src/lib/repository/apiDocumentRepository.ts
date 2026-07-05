@@ -19,6 +19,7 @@ interface ApiDocument {
   id: string
   carName: string
   carNumber: string
+  markupPercent?: number
   parts: ApiPart[]
   createdAt: string
   updatedAt: string
@@ -30,6 +31,8 @@ function toClientDocument(doc: ApiDocument): SavedDocument {
     id: doc.id,
     carName: doc.carName,
     carNumber: doc.carNumber,
+    // Documents saved before the markup feature have no field → 0%.
+    markupPercent: doc.markupPercent ?? 0,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
     parts: doc.parts.map((part) => ({
@@ -56,6 +59,7 @@ function toApiBody(draft: DocumentDraft) {
   return {
     carName: draft.carName,
     carNumber: draft.carNumber,
+    markupPercent: draft.markupPercent,
     parts: draft.parts.map(toApiPart),
   }
 }

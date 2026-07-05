@@ -23,7 +23,8 @@ export interface CarInfo {
   carNumber: string
 }
 
-/** Payload sent to `POST /generate-pdf`. */
+/** Payload sent to `POST /generate-pdf`. Prices are base; backend applies markup. */
 export interface GeneratePdfPayload extends CarInfo {
   parts: Part[]
+  markupPercent?: number
 }

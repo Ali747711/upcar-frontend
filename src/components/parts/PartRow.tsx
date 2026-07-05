@@ -21,6 +21,8 @@ interface PartRowProps {
   uploading: boolean
   /** If true, the partCode input will auto-focus on mount (for newly added rows). */
   autoFocusPartCode?: boolean
+  /** Active document markup in percent; row totals show client-facing amounts. */
+  markupPercent?: number
   onChange: (id: string, update: PartUpdate) => void
   onRemove: (id: string) => void
   onImageSelect: (id: string, file: File) => void
@@ -42,6 +44,7 @@ function PartRowComponent({
   showErrors,
   uploading,
   autoFocusPartCode,
+  markupPercent = 0,
   onChange,
   onRemove,
   onImageSelect,
@@ -189,7 +192,7 @@ function PartRowComponent({
           !part.checked && "text-muted-foreground"
         )}
       >
-        {formatCurrency(rowTotal(part))}
+        {formatCurrency(rowTotal(part, markupPercent))}
       </TableCell>
 
       <TableCell className="text-center">

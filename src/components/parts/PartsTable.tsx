@@ -37,6 +37,8 @@ interface PartsTableProps {
   showErrors: boolean
   /** Ids of rows whose image is currently uploading. */
   uploadingIds: Set<string>
+  /** Active document markup in percent (0 = none). */
+  markupPercent?: number
   onAdd: () => void
   onAddMany: (parts: Partial<Part>[]) => void
   onChange: (id: string, update: PartUpdate) => void
@@ -48,6 +50,7 @@ export function PartsTable({
   parts,
   showErrors,
   uploadingIds,
+  markupPercent = 0,
   onAdd,
   onAddMany,
   onChange,
@@ -63,7 +66,7 @@ export function PartsTable({
     return parts.filter((part) => part.partCode.toLowerCase().includes(query))
   }, [parts, searchQuery])
 
-  const total = grandTotal(parts)
+  const total = grandTotal(parts, markupPercent)
   const checkedCount = parts.filter((part) => part.checked).length
 
   const handleLibrarySelect = (selected: LibraryPart[]) => {
@@ -183,6 +186,7 @@ export function PartsTable({
                       autoFocusPartCode={
                         index === filteredParts.length - 1 && !searchQuery
                       }
+                      markupPercent={markupPercent}
                       onChange={onChange}
                       onRemove={onRemove}
                       onImageSelect={onImageSelect}
@@ -230,6 +234,7 @@ export function PartsTable({
                         autoFocusPartCode={
                           index === filteredParts.length - 1 && !searchQuery
                         }
+                        markupPercent={markupPercent}
                         onChange={onChange}
                         onRemove={onRemove}
                         onImageSelect={onImageSelect}
@@ -269,7 +274,7 @@ export function PartsTable({
               </span>
             </div>
             <div className="text-muted-foreground">
-              Grand total:{" "}
+              Grand total{markupPercent > 0 ? ` (+${markupPercent}%)` : ""}:{" "}
               <strong className="text-lg text-foreground tabular-nums">
                 {formatCurrency(total)}
               </strong>

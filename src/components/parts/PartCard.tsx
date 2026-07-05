@@ -18,6 +18,8 @@ interface PartCardProps {
   uploading: boolean
   /** If true, the partCode input will auto-focus on mount (for newly added rows). */
   autoFocusPartCode?: boolean
+  /** Active document markup in percent; row totals show client-facing amounts. */
+  markupPercent?: number
   onChange: (id: string, update: PartUpdate) => void
   onRemove: (id: string) => void
   onImageSelect: (id: string, file: File) => void
@@ -36,6 +38,7 @@ function PartCardComponent({
   showErrors,
   uploading,
   autoFocusPartCode,
+  markupPercent = 0,
   onChange,
   onRemove,
   onImageSelect,
@@ -111,7 +114,9 @@ function PartCardComponent({
           </Button>
         )}
 
-        <span className="flex-1 text-xs text-muted-foreground">#{index + 1}</span>
+        <span className="flex-1 text-xs text-muted-foreground">
+          #{index + 1}
+        </span>
 
         <Button
           type="button"
@@ -208,7 +213,7 @@ function PartCardComponent({
             !part.checked && "text-muted-foreground"
           )}
         >
-          {formatCurrency(rowTotal(part))}
+          {formatCurrency(rowTotal(part, markupPercent))}
         </strong>
       </div>
     </div>

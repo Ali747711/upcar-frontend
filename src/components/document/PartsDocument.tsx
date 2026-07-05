@@ -1,5 +1,10 @@
 import type { CarInfo, Part } from "@/types/part"
-import { formatCurrency, grandTotal, rowTotal } from "@/lib/calculations"
+import {
+  applyMarkup,
+  formatCurrency,
+  grandTotal,
+  rowTotal,
+} from "@/lib/calculations"
 
 import "./document.css"
 
@@ -8,6 +13,8 @@ interface PartsDocumentProps {
   parts: Part[]
   /** ISO date string; defaults to today. */
   date?: string
+  /** Client-facing markup in percent. Applied to unit prices and totals, never displayed. */
+  markupPercent?: number
 }
 
 /** Max parts per column, and per page (two columns side by side). */
@@ -34,7 +41,13 @@ function formatDate(iso: string): string {
   })
 }
 
-function PartEntry({ part }: { part: Part }) {
+function PartEntry({
+  part,
+  markupPercent,
+}: {
+  part: Part
+  markupPercent: number
+}) {
   return (
     <div className="doc__entry">
       <span className="doc__entry-check">{part.checked ? "☑" : "☐"}</span>
@@ -50,9 +63,10 @@ function PartEntry({ part }: { part: Part }) {
       <div className="doc__entry-info">
         <div className="doc__entry-code">{part.partCode || "—"}</div>
         <div className="doc__entry-nums">
-          Qty {part.quantity} × {formatCurrency(part.price)} ={" "}
+          Qty {part.quantity} ×{" "}
+          {formatCurrency(applyMarkup(part.price, markupPercent))} ={" "}
           <span className="doc__entry-total">
-            {formatCurrency(rowTotal(part))}
+            {formatCurrency(rowTotal(part, markupPercent))}
           </span>
         </div>
       </div>
@@ -66,9 +80,14 @@ function PartEntry({ part }: { part: Part }) {
  * single source of truth (see project CLAUDE.md). Parts flow into two columns
  * of up to 9 rows per page (18 per page), divided by a vertical line.
  */
-export function PartsDocument({ carInfo, parts, date }: PartsDocumentProps) {
+export function PartsDocument({
+  carInfo,
+  parts,
+  date,
+  markupPercent = 0,
+}: PartsDocumentProps) {
   const documentDate = date ?? new Date().toISOString()
-  const total = grandTotal(parts)
+  const total = grandTotal(parts, markupPercent)
   const pages = chunk(parts, ROWS_PER_PAGE)
 
   return (
@@ -92,13 +111,21 @@ export function PartsDocument({ carInfo, parts, date }: PartsDocumentProps) {
           <div className="doc__columns">
             <div className="doc__column">
               {page.slice(0, ROWS_PER_COLUMN).map((part) => (
-                <PartEntry key={part.id} part={part} />
+                <PartEntry
+                  key={part.id}
+                  part={part}
+                  markupPercent={markupPercent}
+                />
               ))}
             </div>
             <div className="doc__divider" />
             <div className="doc__column">
               {page.slice(ROWS_PER_COLUMN).map((part) => (
-                <PartEntry key={part.id} part={part} />
+                <PartEntry
+                  key={part.id}
+                  part={part}
+                  markupPercent={markupPercent}
+                />
               ))}
             </div>
           </div>

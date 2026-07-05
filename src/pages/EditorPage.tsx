@@ -103,6 +103,7 @@ export function EditorPage() {
       initialParts={
         document && document.parts.length > 0 ? document.parts : [blankPart()]
       }
+      initialMarkupPercent={document?.markupPercent ?? 0}
     />
   )
 }

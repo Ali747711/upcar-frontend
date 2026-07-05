@@ -1,15 +1,30 @@
 import type { Part } from "@/types/part"
 
-/** Row total = quantity × price. Returns 0 for invalid numbers. */
-export function rowTotal(part: Pick<Part, "quantity" | "price">): number {
+/**
+ * Client-facing unit price after markup, rounded to a whole number.
+ * 0% returns the base price unchanged (no rounding).
+ * MUST stay in sync with backend `src/utils/money.js` — the backend applies
+ * this exact formula when rendering the PDF.
+ */
+export function applyMarkup(price: number, markupPercent = 0): number {
+  const base = Number.isFinite(price) ? price : 0
+  const pct = Number.isFinite(markupPercent) ? markupPercent : 0
+  if (pct === 0) return base
+  return Math.round(base * (1 + pct / 100))
+}
+
+/** Row total = quantity × marked-up unit price. Returns 0 for invalid numbers. */
+export function rowTotal(
+  part: Pick<Part, "quantity" | "price">,
+  markupPercent = 0
+): number {
   const quantity = Number.isFinite(part.quantity) ? part.quantity : 0
-  const price = Number.isFinite(part.price) ? part.price : 0
-  return quantity * price
+  return quantity * applyMarkup(part.price, markupPercent)
 }
 
 /** Grand total across every row (regardless of checked status). */
-export function grandTotal(parts: Part[]): number {
-  return parts.reduce((sum, part) => sum + rowTotal(part), 0)
+export function grandTotal(parts: Part[], markupPercent = 0): number {
+  return parts.reduce((sum, part) => sum + rowTotal(part, markupPercent), 0)
 }
 
 // Dot as thousands separator, no currency symbol, no trailing decimal zeros.

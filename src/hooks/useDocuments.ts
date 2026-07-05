@@ -53,6 +53,8 @@ export function useDocuments(): UseDocumentsResult {
       const draft: DocumentDraft = {
         carName: original.carName ? `${original.carName} (copy)` : "",
         carNumber: original.carNumber,
+        // The copy keeps the original's client-facing pricing.
+        markupPercent: original.markupPercent,
         // New ids per part so the copy is fully independent.
         parts: original.parts.map((part) => ({
           ...part,
