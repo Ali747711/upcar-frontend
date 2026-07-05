@@ -106,7 +106,7 @@ export function DocumentCard({
           {document.parts.length === 1 ? "part" : "parts"}
         </span>
         <span className="font-medium tabular-nums">
-          {formatCurrency(grandTotal(document.parts))}
+          {formatCurrency(grandTotal(document.parts, document.markupPercent))}
         </span>
       </div>
 
