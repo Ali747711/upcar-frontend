@@ -1,13 +1,14 @@
 import { useState } from "react"
-import { Check, ChevronDown, Percent } from "lucide-react"
+import { ChevronDown, Percent } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -49,9 +50,6 @@ export function MarkupSelect({ value, onChange }: MarkupSelectProps) {
     setOpen(false)
   }
 
-  const renderCheck = (active: boolean) =>
-    active ? <Check data-icon="inline-end" /> : null
-
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
@@ -66,15 +64,17 @@ export function MarkupSelect({ value, onChange }: MarkupSelectProps) {
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuLabel>Price markup</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => onChange(0)}>
-          None
-          {renderCheck(value === 0)}
-        </DropdownMenuItem>
-        {PRESETS.map((preset) => (
-          <DropdownMenuItem key={preset} onClick={() => onChange(preset)}>
-            +{preset}%{renderCheck(value === preset)}
-          </DropdownMenuItem>
-        ))}
+        <DropdownMenuRadioGroup
+          value={String(value)}
+          onValueChange={(selected) => onChange(Number(selected))}
+        >
+          <DropdownMenuRadioItem value="0">None</DropdownMenuRadioItem>
+          {PRESETS.map((preset) => (
+            <DropdownMenuRadioItem key={preset} value={String(preset)}>
+              +{preset}%
+            </DropdownMenuRadioItem>
+          ))}
+        </DropdownMenuRadioGroup>
         <DropdownMenuSeparator />
         {/* stopPropagation keeps DropdownMenu typeahead from stealing keystrokes */}
         <div
@@ -97,7 +97,11 @@ export function MarkupSelect({ value, onChange }: MarkupSelectProps) {
             }}
             className="h-8"
           />
-          <Button size="sm" disabled={customValue === null} onClick={applyCustom}>
+          <Button
+            size="sm"
+            disabled={customValue === null}
+            onClick={applyCustom}
+          >
             Apply
           </Button>
         </div>
